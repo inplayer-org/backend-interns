@@ -1,5 +1,7 @@
 package house
+
 import "strings"
+
 func Verse(v int) string {
 	rhyme := "This is the "
 	end := verses[0].object + " that " + verses[0].action + "."
@@ -24,6 +26,7 @@ func Song() string {
 	}
 	return strings.Join(allverses, "\n\n")
 }
+
 var verses = []verse{
 	verse{object: "house", action: "Jack built"},
 	verse{object: "malt", action: "lay in"},
@@ -38,6 +41,7 @@ var verses = []verse{
 	verse{object: "farmer sowing his corn", action: "kept"},
 	verse{object: "horse and the hound and the horn", action: "belonged to"},
 }
+
 type verse struct {
 	object string
 	action string
