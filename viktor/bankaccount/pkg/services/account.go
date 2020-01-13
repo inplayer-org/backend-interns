@@ -6,6 +6,6 @@ import (
 
 type Account struct {
 	Mux        sync.Mutex
-	Balanceacc int64
+	BalanceAcc int64
 	Status     bool
 }

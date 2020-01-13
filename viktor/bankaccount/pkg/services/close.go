@@ -9,8 +9,8 @@ func (acc *Account) Close() (payout int64, ok bool) {
 		close = acc.Status
 		if acc.Status {
 			acc.Status = false
-			pay = acc.Balanceacc
-			acc.Balanceacc = 0
+			pay = acc.BalanceAcc
+			acc.BalanceAcc = 0
 
 		}
 	}
