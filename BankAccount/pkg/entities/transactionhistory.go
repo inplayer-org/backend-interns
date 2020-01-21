@@ -6,5 +6,5 @@ type TransactionHistory struct {
 	AccountId int     `db:"account_id"`
 	Amount    float64 `db: "amount"`
 	Action    string  `db: "action"`
-	Created   string  `db: "created_at"`
+	CreatedAt string  `db: "created_at"`
 }
