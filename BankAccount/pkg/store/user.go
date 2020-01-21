@@ -20,16 +20,16 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 	}
 }
 
-func (store *UserModel) Insert(FullName string, email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error) {
+func (store *UserModel) Insert(FullName string, Email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error) {
 
 	user := entities.User{
 		FullName:    FullName,
-		Email:       email,
+		Email:       Email,
 		PhoneNumber: PhoneNumber,
 		CreatedAt:   CreatedAt,
 		UpdatedAt:   UpdatedAt,
 	}
-	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", FullName, email, PhoneNumber, CreatedAt, UpdatedAt)
+	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", FullName, Email, PhoneNumber, CreatedAt, UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
