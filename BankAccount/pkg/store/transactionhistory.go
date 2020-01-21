@@ -39,7 +39,7 @@ func (store *TransactionHistoryModel) Insert(UserId int, AccountId int, Amount f
 
 func (store *TransactionHistoryModel) GetTransactionsById(Id int) (*[]entities.TransactionHistory, error) {
 	var transactions []entities.TransactionHistory
-	result, err := store.Db.Query("SELECT * FROM BankAccount.TransactionHistory WHERE user_id = ?", Id)
+	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ?", Id)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (store *TransactionHistoryModel) GetTransactionsById(Id int) (*[]entities.T
 
 func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(Id int, FromDate string, ToDate string) (*[]entities.TransactionHistory, error) {
 	var transactions []entities.TransactionHistory
-	result, err := store.Db.Query("SELECT * FROM BankAccount.TransactionHistory WHERE user_id = ? and created_at between ? and ?", Id, FromDate, ToDate)
+	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ? and created_at BETWEEN ? and ?", Id, FromDate, ToDate)
 	if err != nil {
 		return nil, err
 	}
