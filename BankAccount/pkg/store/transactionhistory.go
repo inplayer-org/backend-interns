@@ -7,7 +7,7 @@ import (
 )
 
 type TransactionHistoryStore interface {
-	Insert()
+	Insert(UserId int, AccountId int, Amount float64, Action string, Created string) (*entities.TransactionHistory, error)
 }
 
 type TransactionHistoryModel struct {
