@@ -8,6 +8,8 @@ import (
 type UserStore interface {
 	Insert(FullName string, email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error)
 	GetUserById(Id int) (*entities.User, error)
+//	UpdateUser(Id int, FullName string, Email string, PhoneNumber string, UpdatedAt string) (*entities.User, error)
+
 }
 
 type UserModel struct {
@@ -20,7 +22,7 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 	}
 }
 
-func (store *UserModel) Insert(FullName string, Email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error) {
+func (store *UserModel) InsertUser(FullName string, Email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error) {
 
 	user := entities.User{
 		FullName:    FullName,
@@ -51,4 +53,21 @@ func (store *UserModel) GetUserById(Id int) (*[]entities.User, error) {
 		users = append(users, user)
 	}
 	return &users, nil
+}
+
+func (store *UserModel) UpdateUser(Id int, FullName string, Email string, PhoneNumber string, UpdatedAt string) (*entities.User, error){
+
+	_, err := store.Db.Exec("UPDATE BankAccount.User SET full_name = ?, email = ?, phone_number = ?, updated_at =? WHERE id = ?", FullName, Email, PhoneNumber, UpdatedAt, Id)
+	if err != nil {
+		return nil, err
+	}
+	return nil, err
+}
+
+func (store *UserModel) DeleteUser(Id int) (*entities.User, error){
+	_, err := store.Db.Exec("DELETE FROM BankAccount.User WHERE id=?", Id)
+	if err != nil {
+		return nil, err
+	}
+	return nil, err
 }
