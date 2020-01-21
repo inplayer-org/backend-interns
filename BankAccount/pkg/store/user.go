@@ -1,14 +1,15 @@
 package store
 
 import (
-	"bankacc/pkg/config"
 	"bankacc/pkg/entities"
 	"database/sql"
 )
 
 type UserStore interface {
-	Insert(full_name string, email string, phone_number string, created_at string, updated_at string) (*entities.User, error)
+	Insert(FullName string, email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error)
+	GetUserById(Id int) (*entities.User, error)
 }
+
 type UserModel struct {
 	Db *sql.DB
 }
@@ -18,26 +19,36 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 		Db: db,
 	}
 }
-func (store *UserModel) Insert(full_name string, email string, phone_number string, created_at string, updated_at string) (*entities.User, error) {
-	db, err := config.GetMySQLDB()
+
+func (store *UserModel) Insert(FullName string, email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error) {
+
+	user := entities.User{
+		FullName:    FullName,
+		Email:       email,
+		PhoneNumber: PhoneNumber,
+		CreatedAt:   CreatedAt,
+		UpdatedAt:   UpdatedAt,
+	}
+	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", FullName, email, PhoneNumber, CreatedAt, UpdatedAt)
 	if err != nil {
 		return nil, err
-	} else {
-		UModel := UserModel{
-			Db: db,
-		}
-		user := entities.User{
-			FullName:    full_name,
-			Email:       email,
-			PhoneNumber: phone_number,
-			Created:     created_at,
-			Updated:     updated_at,
-		}
-		_, err := UModel.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)",full_name, email, phone_number, created_at, updated_at)
+	}
+	return &user, nil
+}
+
+func (store *UserModel) GetUserById(Id int) (*[]entities.User, error) {
+	var users []entities.User
+	result, err := store.Db.Query("SELECT * FROM BankAccount.User WHERE id=?", Id)
+	if err != nil {
+		return nil, err
+	}
+	var user entities.User
+	for result.Next() {
+		err := result.Scan(&user.Id, &user.FullName, &user.Email, &user.PhoneNumber, &user.UpdatedAt, &user.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
-		return &user, nil
+		users = append(users, user)
 	}
-
+	return &users, nil
 }
