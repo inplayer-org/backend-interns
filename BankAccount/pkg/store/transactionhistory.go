@@ -3,12 +3,13 @@ package store
 import (
 	"bankacc/pkg/entities"
 	"database/sql"
+	"time"
 )
 
 type TransactionHistoryStore interface {
-	Insert(userId int, accountId int, amount float64, action string, createdAt string) (*entities.TransactionHistory, error)
+	Insert(userId int, accountId int, amount float64, action string) (*entities.TransactionHistory, error)
 	GetTransactionsById(id int) (*[]entities.TransactionHistory, error)
-	GetTransactionsByIdFromToDate(id int, fromDate string, toDate string) (*[]entities.TransactionHistory, error)
+	GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) (*[]entities.TransactionHistory, error)
 }
 
 type TransactionHistoryModel struct {
@@ -21,15 +22,15 @@ func NewTransactionHistoryStoreModel(db *sql.DB) *TransactionHistoryModel {
 	}
 }
 
-func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount float64, action string, createdAt string) (*entities.TransactionHistory, error) {
+func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount float64, action string) (*entities.TransactionHistory, error) {
 	transaction := entities.TransactionHistory{
 		UserId:    userId,
 		AccountId: accountId,
 		Amount:    amount,
 		Action:    action,
-		CreatedAt: createdAt,
+		CreatedAt: time.Now(),
 	}
-	_, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", userId, accountId, amount, action, createdAt)
+	_, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", userId, accountId, amount, action, time.Now().Format("2006-01-02T15:04:05"))
 
 	if err != nil {
 		return nil, err
@@ -54,7 +55,7 @@ func (store *TransactionHistoryModel) GetTransactionsById(id int) (*[]entities.T
 	return &transactions, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate string, toDate string) (*[]entities.TransactionHistory, error) {
+func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) (*[]entities.TransactionHistory, error) {
 	var transactions []entities.TransactionHistory
 	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ? and created_at BETWEEN ? and ?", id, fromDate, toDate)
 	if err != nil {
