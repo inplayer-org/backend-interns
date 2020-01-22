@@ -23,17 +23,17 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 	}
 }
 
-func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string, now time.Time, now1 time.Time) (*entities.User, error) {
-	now = time.Now()
-	now1 = time.Now()
+func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string, created time.Time, updated time.Time) (*entities.User, error) {
+	created = time.Now()
+	updated = time.Now()
 	user := entities.User{
 		FullName:    fullName,
 		Email:       email,
 		PhoneNumber: phoneNumber,
-		Created:     now,
-		Updated:     now1,
+		Created:     created,
+		Updated:     updated,
 	}
-	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, now, now1)
+	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, created, updated)
 	if err != nil {
 		return nil, err
 	}
