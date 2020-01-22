@@ -6,9 +6,10 @@ import (
 )
 
 type UserStore interface {
-	Insert(FullName string, email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error)
-	GetUserById(Id int) (*entities.User, error)
-//	UpdateUser(Id int, FullName string, Email string, PhoneNumber string, UpdatedAt string) (*entities.User, error)
+	Insert(fullName string, email string, phoneNumber string, createdAt string, updatedAt string) (*entities.User, error)
+	GetUserById(id int) (*entities.User, error)
+	UpdateUser(id int, fullName string, email string, phoneNumber string, updatedAt string) (*entities.User, error)
+	DeleteUser(id int) (*entities.User, error)
 
 }
 
@@ -22,25 +23,25 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 	}
 }
 
-func (store *UserModel) InsertUser(FullName string, Email string, PhoneNumber string, CreatedAt string, UpdatedAt string) (*entities.User, error) {
+func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string, createdAt string, updatedAt string) (*entities.User, error) {
 
 	user := entities.User{
-		FullName:    FullName,
-		Email:       Email,
-		PhoneNumber: PhoneNumber,
-		CreatedAt:   CreatedAt,
-		UpdatedAt:   UpdatedAt,
+		FullName:    fullName,
+		Email:       email,
+		PhoneNumber: phoneNumber,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
 	}
-	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", FullName, Email, PhoneNumber, CreatedAt, UpdatedAt)
+	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, createdAt, updatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (store *UserModel) GetUserById(Id int) (*[]entities.User, error) {
+func (store *UserModel) GetUserById(id int) (*[]entities.User, error) {
 	var users []entities.User
-	result, err := store.Db.Query("SELECT * FROM BankAccount.User WHERE id=?", Id)
+	result, err := store.Db.Query("SELECT * FROM BankAccount.User WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -55,17 +56,17 @@ func (store *UserModel) GetUserById(Id int) (*[]entities.User, error) {
 	return &users, nil
 }
 
-func (store *UserModel) UpdateUser(Id int, FullName string, Email string, PhoneNumber string, UpdatedAt string) (*entities.User, error){
+func (store *UserModel) UpdateUser(id int, fullName string, email string, phoneNumber string, updatedAt string) (*entities.User, error){
 
-	_, err := store.Db.Exec("UPDATE BankAccount.User SET full_name = ?, email = ?, phone_number = ?, updated_at =? WHERE id = ?", FullName, Email, PhoneNumber, UpdatedAt, Id)
+	_, err := store.Db.Exec("UPDATE BankAccount.User SET full_name = ?, email = ?, phone_number = ?, updated_at =? WHERE id = ?", fullName, email, phoneNumber, updatedAt, id)
 	if err != nil {
 		return nil, err
 	}
 	return nil, err
 }
 
-func (store *UserModel) DeleteUser(Id int) (*entities.User, error){
-	_, err := store.Db.Exec("DELETE FROM BankAccount.User WHERE id=?", Id)
+func (store *UserModel) DeleteUser(id int) (*entities.User, error){
+	_, err := store.Db.Exec("DELETE FROM BankAccount.User WHERE id=?", id)
 	if err != nil {
 		return nil, err
 	}
