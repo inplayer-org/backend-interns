@@ -6,9 +6,9 @@ import (
 )
 
 type TransactionHistoryStore interface {
-	Insert(UserId int, AccountId int, Amount float64, Action string, CreatedAt string) (*entities.TransactionHistory, error)
-	GetTransactionsById(Id int) (*[]entities.TransactionHistory, error)
-	GetTransactionsByIdFromToDate(Id int, FromDate string, ToDate string) (*[]entities.TransactionHistory, error)
+	Insert(userId int, accountId int, amount float64, action string, createdAt string) (*entities.TransactionHistory, error)
+	GetTransactionsById(id int) (*[]entities.TransactionHistory, error)
+	GetTransactionsByIdFromToDate(id int, fromDate string, toDate string) (*[]entities.TransactionHistory, error)
 }
 
 type TransactionHistoryModel struct {
@@ -21,15 +21,15 @@ func NewTransactionHistoryStoreModel(db *sql.DB) *TransactionHistoryModel {
 	}
 }
 
-func (store *TransactionHistoryModel) Insert(UserId int, AccountId int, Amount float64, Action string, CreatedAt string) (*entities.TransactionHistory, error) {
+func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount float64, action string, createdAt string) (*entities.TransactionHistory, error) {
 	transaction := entities.TransactionHistory{
-		UserId:    UserId,
-		AccountId: AccountId,
-		Amount:    Amount,
-		Action:    Action,
-		CreatedAt: CreatedAt,
+		UserId:    userId,
+		AccountId: accountId,
+		Amount:    amount,
+		Action:    action,
+		CreatedAt: createdAt,
 	}
-	_, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", UserId, AccountId, Amount, Action, CreatedAt)
+	_, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", userId, accountId, amount, action, createdAt)
 
 	if err != nil {
 		return nil, err
@@ -37,9 +37,9 @@ func (store *TransactionHistoryModel) Insert(UserId int, AccountId int, Amount f
 	return &transaction, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsById(Id int) (*[]entities.TransactionHistory, error) {
+func (store *TransactionHistoryModel) GetTransactionsById(id int) (*[]entities.TransactionHistory, error) {
 	var transactions []entities.TransactionHistory
-	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ?", Id)
+	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +54,9 @@ func (store *TransactionHistoryModel) GetTransactionsById(Id int) (*[]entities.T
 	return &transactions, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(Id int, FromDate string, ToDate string) (*[]entities.TransactionHistory, error) {
+func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate string, toDate string) (*[]entities.TransactionHistory, error) {
 	var transactions []entities.TransactionHistory
-	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ? and created_at BETWEEN ? and ?", Id, FromDate, ToDate)
+	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ? and created_at BETWEEN ? and ?", id, fromDate, toDate)
 	if err != nil {
 		return nil, err
 	}
