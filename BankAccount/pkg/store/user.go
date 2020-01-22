@@ -7,7 +7,7 @@ import (
 )
 
 type UserStore interface {
-	Insert(fullName string, email string, phoneNumber string, now time.Time, now1 time.Time) (*entities.User, error)
+	Insert(fullName string, email string, phoneNumber string, createdAt time.Time, updatedAt time.Time) (*entities.User, error)
 	GetUserById(id int) (*entities.User, error)
 	UpdateUser(id int, fullName string, email string, phoneNumber string, updatedAt time.Time) (*entities.User, error)
 	DeleteUser(id int) (*entities.User, error)
@@ -23,17 +23,17 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 	}
 }
 
-func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string, created time.Time, updated time.Time) (*entities.User, error) {
-	created = time.Now()
-	updated = time.Now()
+func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string, createdAt time.Time, updatedAt time.Time) (*entities.User, error) {
+	createdAt = time.Now()
+	updatedAt = time.Now()
 	user := entities.User{
 		FullName:    fullName,
 		Email:       email,
 		PhoneNumber: phoneNumber,
-		Created:     created,
-		Updated:     updated,
+		CreatedAt:     createdAt,
+		UpdatedAt:     updatedAt,
 	}
-	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, created, updated)
+	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, createdAt, updatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (store *UserModel) GetUserById(id int) (*[]entities.User, error) {
 	}
 	var user entities.User
 	for result.Next() {
-		err := result.Scan(&user.Id, &user.FullName, &user.Email, &user.PhoneNumber, &user.Updated, &user.Created)
+		err := result.Scan(&user.Id, &user.FullName, &user.Email, &user.PhoneNumber, &user.UpdatedAt, &user.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
