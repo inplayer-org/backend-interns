@@ -8,9 +8,9 @@ import (
 )
 
 type AccountStore interface {
-	InsertAccount(userId int, balance float64, currency string, createdAt time.Time, updatedAt time.Time) (*entities.Account, error)
+	InsertAccount(userId int, balance float64, currency string) (*entities.Account, error)
 	GetAccountsByUserId(userId int) (*[]entities.Account, error)
-	UpdateAccount(id int, userId int, balance float64, currency string, updatedAt time.Time) (*entities.User, error)
+	UpdateAccount(id int, userId int, balance float64, currency string, updatedAt time.Time) (*entities.Account, error)
 	CloseAccount(id int, userId int, updatedAt time.Time) (*entities.Account, error)
 }
 
@@ -24,9 +24,9 @@ func NewAccountStoreModel(db *sql.DB) *AccountModel {
 	}
 }
 
-func (store *AccountModel) InsertAccount(userId int, balance float64, currency string, createdAt time.Time, updatedAt time.Time) (*entities.Account, error) {
-	createdAt = time.Now()
-	updatedAt = time.Now()
+func (store *AccountModel) InsertAccount(userId int, balance float64, currency string) (*entities.Account, error) {
+	createdAt := time.Now()
+	updatedAt := time.Now()
 	account := entities.Account{
 		UserId:    userId,
 		Balance:   balance,
@@ -59,8 +59,8 @@ func (store *AccountModel) GetAccountsByUserId(userId int) (*[]entities.Account,
 	return &accounts, nil
 }
 
-func (store *AccountModel) UpdateAccount(id int, userId int, balance float64, currency string, updatedAt time.Time) (*entities.User, error) {
-	updatedAt = time.Now()
+func (store *AccountModel) UpdateAccount(id int, userId int, balance float64, currency string) (*entities.Account, error) {
+	updatedAt := time.Now()
 	_, err := store.Db.Exec("UPDATE BankAccount.Account SET balance = ?, currency =?, updated_at = ? WHERE user_id = ? AND id =?", balance, currency, updatedAt, userId, id)
 	if err != nil {
 		return nil, err
@@ -68,8 +68,8 @@ func (store *AccountModel) UpdateAccount(id int, userId int, balance float64, cu
 	return nil, err
 }
 
-func (store *AccountModel) CloseAccount(id int, userId int, updatedAt time.Time) (*entities.Account, error) {
-	updatedAt = time.Now()
+func (store *AccountModel) CloseAccount(id int, userId int) (*entities.Account, error) {
+	updatedAt := time.Now()
 	_, err := store.Db.Exec("UPDATE BankAccount.Account SET status = 0, updated_at = ? WHERE user_id =  ? AND id = ?", updatedAt, userId, id)
 	if err != nil {
 		return nil, err
