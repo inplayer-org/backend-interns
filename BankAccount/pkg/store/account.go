@@ -69,7 +69,7 @@ func (store *AccountModel) UpdateAccount(id int, userId int, balance float64, cu
 }
 
 func (store *AccountModel) CloseAccount(id int, userId int, updatedAt time.Time) (*entities.Account, error) {
-		updatedAt = time.Now()
+	updatedAt = time.Now()
 	_, err := store.Db.Exec("UPDATE BankAccount.Account SET status = 0, updated_at = ? WHERE user_id =  ? AND id = ?", updatedAt, userId, id)
 	if err != nil {
 		return nil, err
