@@ -7,9 +7,9 @@ import (
 )
 
 type UserStore interface {
-	Insert(fullName string, email string, phoneNumber string, createdAt time.Time, updatedAt time.Time) (*entities.User, error)
+	Insert(fullName string, email string, phoneNumber string) (*entities.User, error)
 	GetUserById(id int) (*entities.User, error)
-	UpdateUser(id int, fullName string, email string, phoneNumber string, updatedAt time.Time) (*entities.User, error)
+	UpdateUser(id int, fullName string, email string, phoneNumber string) (*entities.User, error)
 	DeleteUser(id int) (*entities.User, error)
 }
 
@@ -23,15 +23,15 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 	}
 }
 
-func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string, createdAt time.Time, updatedAt time.Time) (*entities.User, error) {
-	createdAt = time.Now()
-	updatedAt = time.Now()
+func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string) (*entities.User, error) {
+	createdAt := time.Now()
+	updatedAt := time.Now()
 	user := entities.User{
 		FullName:    fullName,
 		Email:       email,
 		PhoneNumber: phoneNumber,
-		CreatedAt:     createdAt,
-		UpdatedAt:     updatedAt,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
 	}
 	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, createdAt, updatedAt)
 	if err != nil {
@@ -57,8 +57,8 @@ func (store *UserModel) GetUserById(id int) (*[]entities.User, error) {
 	return &users, nil
 }
 
-func (store *UserModel) UpdateUser(id int, fullName string, email string, phoneNumber string, updatedAt time.Time) (*entities.User, error) {
-
+func (store *UserModel) UpdateUser(id int, fullName string, email string, phoneNumber string) (*entities.User, error) {
+	updatedAt := time.Now()
 	_, err := store.Db.Exec("UPDATE BankAccount.User SET full_name = ?, email = ?, phone_number = ?, updated_at =? WHERE id = ?", fullName, email, phoneNumber, updatedAt, id)
 	if err != nil {
 		return nil, err
