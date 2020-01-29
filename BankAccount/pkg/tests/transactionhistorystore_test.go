@@ -49,6 +49,12 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 			Action:    "Deposit",
 		},
 		{
+			UserId:    1,
+			AccountId: 2,
+			Amount:    44,
+			Action:    "Deposit",
+		},
+		{
 			UserId:    2,
 			AccountId: 1,
 			Amount:    200,
@@ -88,12 +94,16 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 		transact = append(transact, tr)
 	}
 
-	for i, value := range transact {
-		suite.Equal(value.Id, transact[i].Id)
-		suite.Equal(value.UserId, transact[i].UserId)
-		suite.Equal(value.AccountId, transact[i].AccountId)
-		suite.Equal(value.Action, transact[i].Action)
-		suite.Equal(value.Amount, transact[i].Amount)
+	for _, value := range suite.TransactionsP {
+		for i := range transact {
+			if value.Id == transact[i].Id {
+				suite.Equal(value.Id, transact[i].Id)
+				suite.Equal(value.UserId, transact[i].UserId)
+				suite.Equal(value.AccountId, transact[i].AccountId)
+				suite.Equal(value.Action, transact[i].Action)
+				suite.Equal(value.Amount, transact[i].Amount)
+			}
+		}
 	}
 }
 
@@ -118,17 +128,18 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
 		for i := range *transaction {
 			tr = &(*transaction)[i]
 		}
-
 		transact = append(transact, tr)
 	}
 
-	for i, value := range transact {
-		if i >= len(suite.TransactionsP)/2 {
-			suite.Equal(value.Id, suite.TransactionsP[i].Id)
-			suite.Equal(value.UserId, suite.TransactionsP[i].UserId)
-			suite.Equal(value.AccountId, suite.TransactionsP[i].AccountId)
-			suite.Equal(value.Action, suite.TransactionsP[i].Action)
-			suite.Equal(value.Amount, suite.TransactionsP[i].Amount)
+	for _, value := range suite.TransactionsP {
+		for i := range transact {
+			if value.Id == transact[i].Id {
+				suite.Equal(value.Id, transact[i].Id)
+				suite.Equal(value.UserId, transact[i].UserId)
+				suite.Equal(value.AccountId, transact[i].AccountId)
+				suite.Equal(value.Action, transact[i].Action)
+				suite.Equal(value.Amount, transact[i].Amount)
+			}
 		}
 	}
 }
