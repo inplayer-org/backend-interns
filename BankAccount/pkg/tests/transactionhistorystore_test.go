@@ -97,7 +97,6 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 	for _, value := range suite.TransactionsP {
 		for i := range transact {
 			if value.Id == transact[i].Id {
-				suite.Equal(value.Id, transact[i].Id)
 				suite.Equal(value.UserId, transact[i].UserId)
 				suite.Equal(value.AccountId, transact[i].AccountId)
 				suite.Equal(value.Action, transact[i].Action)
@@ -134,7 +133,6 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
 	for _, value := range suite.TransactionsP {
 		for i := range transact {
 			if value.Id == transact[i].Id {
-				suite.Equal(value.Id, transact[i].Id)
 				suite.Equal(value.UserId, transact[i].UserId)
 				suite.Equal(value.AccountId, transact[i].AccountId)
 				suite.Equal(value.Action, transact[i].Action)
