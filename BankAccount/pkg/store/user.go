@@ -26,16 +26,22 @@ func NewUserStoreModel(db *sql.DB) *UserModel {
 func (store *UserModel) InsertUser(fullName string, email string, phoneNumber string) (*entities.User, error) {
 	createdAt := time.Now()
 	updatedAt := time.Now()
+
+	result, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, createdAt, updatedAt)
+	if err != nil {
+		return nil, err
+	}
+	res, err := result.LastInsertId()
+	if err != nil{
+		return nil, err
+	}
 	user := entities.User{
+		Id:          int(res),
 		FullName:    fullName,
 		Email:       email,
 		PhoneNumber: phoneNumber,
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
-	}
-	_, err := store.Db.Exec("INSERT INTO User (full_name, email, phone_number, created_at, updated_at) VALUES(?, ?, ?, ?, ?)", fullName, email, phoneNumber, createdAt, updatedAt)
-	if err != nil {
-		return nil, err
 	}
 	return &user, nil
 }
@@ -63,7 +69,13 @@ func (store *UserModel) UpdateUser(id int, fullName string, email string, phoneN
 	if err != nil {
 		return nil, err
 	}
-	return nil, err
+	user := entities.User{
+		FullName:    fullName,
+		Email:       email,
+		PhoneNumber: phoneNumber,
+		UpdatedAt: updatedAt,
+	}
+	return &user, err
 }
 
 func (store *UserModel) DeleteUser(id int) (*entities.User, error) {
@@ -73,3 +85,4 @@ func (store *UserModel) DeleteUser(id int) (*entities.User, error) {
 	}
 	return nil, err
 }
+
