@@ -50,6 +50,12 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 		},
 		{
 			UserId:    1,
+			AccountId: 1,
+			Amount:    100,
+			Action:    "Withdraw",
+		},
+		{
+			UserId:    1,
 			AccountId: 2,
 			Amount:    44,
 			Action:    "Deposit",
@@ -80,23 +86,18 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 	store := store.NewTransactionHistoryStoreModel(suite.Db)
 	var err error
-	var transaction *[]entities.TransactionHistory
 	var transact []*entities.TransactionHistory
-	var tr *entities.TransactionHistory
 	for _, value := range suite.TransactionsP {
-		transaction, err = store.GetTransactionsById(value.UserId)
+		transact, err = store.GetTransactionsById(value.UserId)
 		if err != nil {
-			suite.T().Fatal("Unable to run InsertTransactionHistory store func")
+			suite.T().Fatal("Unable to run GetTransactionsById store func")
 		}
-		for i := range *transaction {
-			tr = &(*transaction)[i]
-		}
-		transact = append(transact, tr)
 	}
 
 	for _, value := range suite.TransactionsP {
 		for i := range transact {
 			if value.Id == transact[i].Id {
+				suite.Equal(value.Id, transact[i].Id)
 				suite.Equal(value.UserId, transact[i].UserId)
 				suite.Equal(value.AccountId, transact[i].AccountId)
 				suite.Equal(value.Action, transact[i].Action)
@@ -109,9 +110,7 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
 	store := store.NewTransactionHistoryStoreModel(suite.Db)
 	var err error
-	var transaction *[]entities.TransactionHistory
 	var transact []*entities.TransactionHistory
-	var tr *entities.TransactionHistory
 	for _, value := range suite.TransactionsP {
 		var k int
 		for k = value.CreatedAt.Nanosecond(); k >= 10; k = k / 10 {
@@ -120,19 +119,16 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
 			value.CreatedAt = value.CreatedAt.Add(time.Second * 1)
 		}
 		value.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", value.CreatedAt.UTC().Format("2006-01-02 15:04:05"))
-		transaction, err = store.GetTransactionsByIdFromToDate(value.UserId, value.CreatedAt.UTC(), value.CreatedAt.UTC())
+		transact, err = store.GetTransactionsByIdFromToDate(value.UserId, value.CreatedAt.UTC(), value.CreatedAt.UTC())
 		if err != nil {
-			suite.T().Fatal("Unable to run InsertTransactionHistory store func")
+			suite.T().Fatal("Unable to run GetTransactionsByIdFromDate store func")
 		}
-		for i := range *transaction {
-			tr = &(*transaction)[i]
-		}
-		transact = append(transact, tr)
 	}
 
 	for _, value := range suite.TransactionsP {
 		for i := range transact {
 			if value.Id == transact[i].Id {
+				suite.Equal(value.Id, transact[i].Id)
 				suite.Equal(value.UserId, transact[i].UserId)
 				suite.Equal(value.AccountId, transact[i].AccountId)
 				suite.Equal(value.Action, transact[i].Action)
