@@ -42,8 +42,8 @@ func (store *AccountModel) InsertAccount(userId int, balance float64, currency s
 	return &account, nil
 }
 
-func (store *AccountModel) GetAccountsByUserId(userId int) (*[]entities.Account, error) {
-	var accounts []entities.Account
+func (store *AccountModel) GetAccountsByUserId(userId int) ([]*entities.Account, error) {
+	var accounts []*entities.Account
 	result, err := store.Db.Query("SELECT * FROM BankAccount.Account WHERE user_id=?", userId)
 	if err != nil {
 		return nil, err
@@ -54,9 +54,9 @@ func (store *AccountModel) GetAccountsByUserId(userId int) (*[]entities.Account,
 		if err != nil {
 			return nil, err
 		}
-		accounts = append(accounts, account)
+		accounts = append(accounts, &account)
 	}
-	return &accounts, nil
+	return accounts, nil
 }
 
 func (store *AccountModel) UpdateAccount(id int, userId int, balance float64, currency string) (*entities.Account, error) {
