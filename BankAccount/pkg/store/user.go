@@ -8,7 +8,7 @@ import (
 
 type UserStore interface {
 	Insert(fullName string, email string, phoneNumber string) (*entities.User, error)
-	GetUserById(id int) (*entities.User, error)
+	GetUserById(id int) ([]*entities.User, error)
 	UpdateUser(id int, fullName string, email string, phoneNumber string) (*entities.User, error)
 	DeleteUser(id int) (*entities.User, error)
 }
@@ -40,8 +40,8 @@ func (store *UserModel) InsertUser(fullName string, email string, phoneNumber st
 	return &user, nil
 }
 
-func (store *UserModel) GetUserById(id int) (*[]entities.User, error) {
-	var users []entities.User
+func (store *UserModel) GetUserById(id int) ([]*entities.User, error) {
+	var users []*entities.User
 	result, err := store.Db.Query("SELECT * FROM BankAccount.User WHERE id=?", id)
 	if err != nil {
 		return nil, err
@@ -52,9 +52,9 @@ func (store *UserModel) GetUserById(id int) (*[]entities.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users = append(users, &user)
 	}
-	return &users, nil
+	return users, nil
 }
 
 func (store *UserModel) UpdateUser(id int, fullName string, email string, phoneNumber string) (*entities.User, error) {
