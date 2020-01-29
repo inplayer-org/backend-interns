@@ -71,7 +71,14 @@ func (store *AccountModel) UpdateAccount(id int, userId int, balance float64, cu
 	if err != nil {
 		return nil, err
 	}
-	return nil, err
+	account := entities.Account{
+		Id:       id,
+		UserId:   userId,
+		Balance:  balance,
+		Currency: currency,
+		Status:   true,
+	}
+	return &account, nil
 }
 
 func (store *AccountModel) CloseAccount(id int, userId int) (*entities.Account, error) {
@@ -80,5 +87,11 @@ func (store *AccountModel) CloseAccount(id int, userId int) (*entities.Account, 
 	if err != nil {
 		return nil, err
 	}
-	return nil, err
+	account := entities.Account{
+		Id:        id,
+		UserId:    userId,
+		Status:    false,
+		UpdatedAt: updatedAt,
+	}
+	return &account, err
 }
