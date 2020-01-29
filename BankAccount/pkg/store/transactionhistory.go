@@ -39,8 +39,8 @@ func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount f
 	return &transaction, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsById(id int) (*[]entities.TransactionHistory, error) {
-	var transactions []entities.TransactionHistory
+func (store *TransactionHistoryModel) GetTransactionsById(id int) ([]*entities.TransactionHistory, error) {
+	var transactions []*entities.TransactionHistory
 	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ?", id)
 	if err != nil {
 		return nil, err
@@ -51,13 +51,13 @@ func (store *TransactionHistoryModel) GetTransactionsById(id int) (*[]entities.T
 		if err != nil {
 			return nil, err
 		}
-		transactions = append(transactions, transaction)
+		transactions = append(transactions, &transaction)
 	}
-	return &transactions, nil
+	return transactions, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) (*[]entities.TransactionHistory, error) {
-	var transactions []entities.TransactionHistory
+func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) ([]*entities.TransactionHistory, error) {
+	var transactions []*entities.TransactionHistory
 	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ? and created_at BETWEEN ? and ?", id, fromDate, toDate)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, from
 		if err != nil {
 			return nil, err
 		}
-		transactions = append(transactions, transaction)
+		transactions = append(transactions, &transaction)
 	}
-	return &transactions, nil
+	return transactions, nil
 }
