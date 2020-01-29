@@ -8,8 +8,8 @@ import (
 
 type TransactionHistoryStore interface {
 	Insert(userId int, accountId int, amount float64, action string) (*entities.TransactionHistory, error)
-	GetTransactionsById(id int) (*[]entities.TransactionHistory, error)
-	GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) (*[]entities.TransactionHistory, error)
+	GetTransactionsById(id int) ([]*entities.TransactionHistory, error)
+	GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) ([]*entities.TransactionHistory, error)
 }
 
 type TransactionHistoryModel struct {
