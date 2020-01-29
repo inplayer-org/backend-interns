@@ -27,17 +27,23 @@ func NewAccountStoreModel(db *sql.DB) *AccountModel {
 func (store *AccountModel) InsertAccount(userId int, balance float64, currency string) (*entities.Account, error) {
 	createdAt := time.Now()
 	updatedAt := time.Now()
+
+	result, err := store.Db.Exec("INSERT INTO Account (user_id, balance, currency, status, created_at, updated_at) VALUES(?, ?, ?, 1, ?, ?)", userId, balance, currency, createdAt, updatedAt)
+	if err != nil {
+		return nil, err
+	}
+	res, err := result.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
 	account := entities.Account{
+		Id:        int(res),
 		UserId:    userId,
 		Balance:   balance,
 		Currency:  currency,
 		Status:    true,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
-	}
-	_, err := store.Db.Exec("INSERT INTO Account (user_id, balance, currency, status, created_at, updated_at) VALUES(?, ?, ?, 1, ?, ?)", userId, balance, currency, createdAt, updatedAt)
-	if err != nil {
-		return nil, err
 	}
 	return &account, nil
 }
