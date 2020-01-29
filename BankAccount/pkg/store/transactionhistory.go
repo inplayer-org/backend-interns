@@ -24,17 +24,22 @@ func NewTransactionHistoryStoreModel(db *sql.DB) *TransactionHistoryModel {
 
 func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount float64, action string) (*entities.TransactionHistory, error) {
 	now := time.Now()
+
+	result, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", userId, accountId, amount, action, now)
+	if err != nil {
+		return nil, err
+	}
+	res, err := result.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
 	transaction := entities.TransactionHistory{
+		Id:        int(res),
 		UserId:    userId,
 		AccountId: accountId,
 		Amount:    amount,
 		Action:    action,
 		CreatedAt: now,
-	}
-	_, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", userId, accountId, amount, action, now)
-
-	if err != nil {
-		return nil, err
 	}
 	return &transaction, nil
 }
