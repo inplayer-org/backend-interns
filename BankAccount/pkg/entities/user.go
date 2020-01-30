@@ -1,17 +1,17 @@
 package entities
 
+import "time"
 
 type User struct {
-	Id          string    `db:"id"`
-	FullName    *FullName `db:"full_name"`
-	Email       string    `db:"email"`
-	PhoneNumber string    `db:"phone_number"`
-	Created     string    `db:"created_at"`
-	Updated     string    `db:"updated_at"`
-
+	Id          int    `db:"id"`
+	FullName    string `db:"full_name"`
+	Email       string `db:"email"`
+	PhoneNumber string `db:"phone_number"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-type FullName struct {
-	FirstName string
-	LastName  string
-}
+//type FullName struct {
+//	FirstName string
+//	LastName  string
+//}
