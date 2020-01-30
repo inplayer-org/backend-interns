@@ -4,7 +4,6 @@ import (
 	"bankacc/pkg/entities"
 	"bankacc/pkg/store"
 	"database/sql"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -43,6 +42,7 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 	var err error
 	suite.Db = MySQLInit()
 	transaction := store.NewTransactionHistoryStoreModel(suite.Db)
+	suite.TransactionID = []int{1, 2}
 	suite.Transactions = []entities.TransactionHistory{
 		{
 			UserId:    1,
@@ -82,7 +82,6 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 			suite.T().Fatal("Unable to run InsertTransactionHistory store func")
 		}
 		suite.TransactionsP = append(suite.TransactionsP, suite.Transaction)
-		suite.TransactionID = []int{1, 2}
 	}
 }
 
@@ -90,22 +89,19 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 	store := store.NewTransactionHistoryStoreModel(suite.Db)
 	var err error
 	var transact []*entities.TransactionHistory
-	//for _, value := range suite.TransactionID {
-	transact, err = store.GetTransactionsById(1)
-	if err != nil {
-		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	for _, value := range suite.TransactionID {
+		transact, err = store.GetTransactionsById(value)
+		if err != nil {
+			suite.T().Fatal("Unable to run GetTransactionsById store func")
+		}
 	}
-
-	fmt.Println(transact)
-
-	//}
 
 	for _, value := range suite.TransactionsP {
 		for i := range transact {
 			if value.Id == transact[i].Id {
 				suite.Equal(value.UserId, transact[i].UserId)
 				suite.Equal(value.AccountId, transact[i].AccountId)
-				suite.Equal(1, transact[i].Action)
+				suite.Equal(value.Action, transact[i].Action)
 				suite.Equal(value.Amount, transact[i].Amount)
 			}
 		}
