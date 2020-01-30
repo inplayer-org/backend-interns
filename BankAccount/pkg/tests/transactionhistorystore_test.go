@@ -4,6 +4,7 @@ import (
 	"bankacc/pkg/entities"
 	"bankacc/pkg/store"
 	"database/sql"
+	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -34,6 +35,7 @@ type TransactionHistoryTestSuite struct {
 	Transactions     []entities.TransactionHistory
 	TransactionsP    []*entities.TransactionHistory
 	TransactionStore store.TransactionHistoryModel
+	TransactionID    []int
 	Db               *sql.DB
 }
 
@@ -63,13 +65,13 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 		{
 			UserId:    2,
 			AccountId: 1,
-			Amount:    200,
-			Action:    "Withdraw",
+			Amount:    65,
+			Action:    "Deposit",
 		},
 		{
-			UserId:    3,
-			AccountId: 3,
-			Amount:    300,
+			UserId:    2,
+			AccountId: 2,
+			Amount:    44,
 			Action:    "Deposit",
 		},
 	}
@@ -80,6 +82,7 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 			suite.T().Fatal("Unable to run InsertTransactionHistory store func")
 		}
 		suite.TransactionsP = append(suite.TransactionsP, suite.Transaction)
+		suite.TransactionID = []int{1, 2}
 	}
 }
 
@@ -87,19 +90,22 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 	store := store.NewTransactionHistoryStoreModel(suite.Db)
 	var err error
 	var transact []*entities.TransactionHistory
-	for _, value := range suite.TransactionsP {
-		transact, err = store.GetTransactionsById(value.UserId)
-		if err != nil {
-			suite.T().Fatal("Unable to run GetTransactionsById store func")
-		}
+	//for _, value := range suite.TransactionID {
+	transact, err = store.GetTransactionsById(1)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
 	}
+
+	fmt.Println(transact)
+
+	//}
 
 	for _, value := range suite.TransactionsP {
 		for i := range transact {
 			if value.Id == transact[i].Id {
 				suite.Equal(value.UserId, transact[i].UserId)
 				suite.Equal(value.AccountId, transact[i].AccountId)
-				suite.Equal(value.Action, transact[i].Action)
+				suite.Equal(1, transact[i].Action)
 				suite.Equal(value.Amount, transact[i].Amount)
 			}
 		}
