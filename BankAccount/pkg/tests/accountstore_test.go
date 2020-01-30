@@ -1,14 +1,27 @@
 package tests
 
 import (
-<<<<<<< HEAD
 	"bankacc/pkg/entities"
 	"bankacc/pkg/store"
 	"database/sql"
+	"log"
+	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/suite"
 )
+
+func MySQLInit() *sql.DB {
+	dbDriver := "mysql"
+	dbUser := "root"
+	dbPass := "Password1!"
+	dbName := "BankAccount?parseTime=true"
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		log.Println(err)
+	}
+	return db
+}
 
 type TearDownTestSuite interface {
 	TearDownTest()
@@ -70,13 +83,17 @@ func (suite *AccountTestSuite) TestGetAccountsById() {
 		}
 	}
 
-=======
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-
-	"bankacc/pkg/entities"
-)
+	for _, value := range suite.AccountsP {
+		for i := range accounts {
+			if value.Id == accounts[i].Id {
+				suite.Equal(value.UserId, accounts[i].UserId)
+				suite.Equal(value.Balance, accounts[i].Balance)
+				suite.Equal(value.Currency, accounts[i].Currency)
+				suite.Equal(value.Status, accounts[i].Status)
+			}
+		}
+	}
+}
 
 func (suite *AccountTestSuite) TestUpdateAccount() {
 	store := store.NewAccountStoreModel(suite.Db)
@@ -91,6 +108,7 @@ func (suite *AccountTestSuite) TestUpdateAccount() {
 		}
 		accounts = append(accounts, account)
 	}
+
 	for _, value := range suite.AccountsP {
 		for i := range accounts {
 			if value.Id == accounts[i].Id {
@@ -101,11 +119,13 @@ func (suite *AccountTestSuite) TestUpdateAccount() {
 		}
 	}
 }
+
 func (suite *AccountTestSuite) TestCloseAccount() {
 	store := store.NewAccountStoreModel(suite.Db)
 	var err error
 	var account *entities.Account
 	var accounts []*entities.Account
+
 	for _, value := range suite.AccountsP {
 		account, err = store.CloseAccount(value.Id, value.UserId)
 		if err != nil {
@@ -113,27 +133,21 @@ func (suite *AccountTestSuite) TestCloseAccount() {
 		}
 		accounts = append(accounts, account)
 	}
->>>>>>> da33139747a4de9f4a2dbf17160c9f2534c5716d
+
 	for _, value := range suite.AccountsP {
 		for i := range accounts {
 			if value.Id == accounts[i].Id {
 				suite.Equal(value.UserId, accounts[i].UserId)
-<<<<<<< HEAD
-				suite.Equal(value.Balance, accounts[i].Balance)
-				suite.Equal(value.Currency, accounts[i].Currency)
-				suite.Equal(value.Status, accounts[i].Status)
-=======
 				suite.Equal(false, accounts[i].Status)
->>>>>>> da33139747a4de9f4a2dbf17160c9f2534c5716d
 			}
 		}
 	}
 }
-<<<<<<< HEAD
-=======
+
 func TestAccountTestSuite(t *testing.T) {
 	suite.Run(t, new(AccountTestSuite))
 }
+
 func (suite *AccountTestSuite) TearDownTest() {
 	for i := 0; i < len(suite.AccountsP); i++ {
 		_, err := suite.Db.Exec("DELETE FROM Account WHERE id=?", suite.AccountsP[i].Id)
@@ -142,4 +156,3 @@ func (suite *AccountTestSuite) TearDownTest() {
 		}
 	}
 }
->>>>>>> da33139747a4de9f4a2dbf17160c9f2534c5716d
