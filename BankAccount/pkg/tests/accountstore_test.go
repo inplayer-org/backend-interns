@@ -122,7 +122,7 @@ func (suite *AccountTestSuite) TestCloseAccount() {
 		for i := range accounts {
 			if value.Id == accounts[i].Id {
 				suite.Equal(value.UserId, accounts[i].UserId)
-				suite.Equal(value.Status, accounts[i].Status)
+				suite.Equal(false, accounts[i].Status)
 			}
 		}
 	}
