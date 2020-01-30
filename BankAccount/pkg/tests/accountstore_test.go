@@ -5,6 +5,7 @@ import (
 	"bankacc/pkg/store"
 	"database/sql"
 	"log"
+	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/suite"
@@ -73,7 +74,9 @@ func (suite *AccountTestSuite) TestGetAccountsById() {
 		for i := range accounts {
 			if value.Id == accounts[i].Id {
 				suite.Equal(value.UserId, accounts[i].UserId)
-				suite.Equal(false, accounts[i].Status)
+				suite.Equal(value.Balance, accounts[i].Balance)
+				suite.Equal(value.Currency, accounts[i].Currency)
+				suite.Equal(value.Status, accounts[i].Status)
 			}
 		}
 	}
@@ -115,11 +118,22 @@ func (suite *AccountTestSuite) TestCloseAccount() {
 		}
 		accounts = append(accounts, account)
 	}
+	for _, value := range suite.AccountsP {
+		for i := range accounts {
+			if value.Id == accounts[i].Id {
+				suite.Equal(value.UserId, accounts[i].UserId)
+				suite.Equal(value.Status, accounts[i].Status)
+			}
+		}
+	}
 }
+
+
 
 func TestAccountTestSuite(t *testing.T) {
 	suite.Run(t, new(AccountTestSuite))
 }
+
 func (suite *AccountTestSuite) TearDownTest() {
 	for i := 0; i < len(suite.AccountsP); i++ {
 		_, err := suite.Db.Exec("DELETE FROM Account WHERE id=?", suite.AccountsP[i].Id)
