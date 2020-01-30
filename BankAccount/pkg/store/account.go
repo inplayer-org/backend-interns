@@ -10,8 +10,8 @@ import (
 type AccountStore interface {
 	InsertAccount(userId int, balance float64, currency string) (*entities.Account, error)
 	GetAccountsByUserId(userId int) ([]*entities.Account, error)
-	UpdateAccount(id int, userId int, balance float64, currency string, updatedAt time.Time) (*entities.Account, error)
-	CloseAccount(id int, userId int, updatedAt time.Time) (*entities.Account, error)
+	UpdateAccount(id int, userId int, balance float64, currency string) (*entities.Account, error)
+	CloseAccount(id int, userId int) (*entities.Account, error)
 }
 
 type AccountModel struct {

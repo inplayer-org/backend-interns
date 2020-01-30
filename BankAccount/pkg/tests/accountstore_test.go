@@ -4,7 +4,6 @@ import (
 	"bankacc/pkg/entities"
 	"bankacc/pkg/store"
 	"database/sql"
-	"log"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -127,8 +126,6 @@ func (suite *AccountTestSuite) TestCloseAccount() {
 		}
 	}
 }
-
-
 
 func TestAccountTestSuite(t *testing.T) {
 	suite.Run(t, new(AccountTestSuite))
