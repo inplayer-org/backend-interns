@@ -5,7 +5,6 @@ import "time"
 type Account struct {
 	Id        int     `db:"id"`
 	UserId    int  	  `db:"user_id"`
-	testF 	string
 	Balance   float64 `db:"balance"`
 	Currency  string  `db:"currency"`
 	Status    bool    `db:"status"`
