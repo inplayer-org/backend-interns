@@ -30,11 +30,9 @@ type TearDownTestSuite interface {
 
 type TransactionHistoryTestSuite struct {
 	suite.Suite
-	Transaction      *entities.TransactionHistory
+	Transaction      entities.TransactionHistory
 	Transactions     []entities.TransactionHistory
-	TransactionsP    []*entities.TransactionHistory
 	TransactionStore store.TransactionHistoryModel
-	TransactionID    []int
 	Db               *sql.DB
 }
 
@@ -42,7 +40,6 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 	var err error
 	suite.Db = MySQLInit()
 	transaction := store.NewTransactionHistoryStoreModel(suite.Db)
-	suite.TransactionID = []int{1, 2}
 	suite.Transactions = []entities.TransactionHistory{
 		{
 			UserId:    1,
@@ -65,77 +62,142 @@ func (suite *TransactionHistoryTestSuite) SetupTest() {
 		{
 			UserId:    2,
 			AccountId: 1,
-			Amount:    65,
-			Action:    "Deposit",
-		},
-		{
-			UserId:    2,
-			AccountId: 2,
-			Amount:    44,
-			Action:    "Deposit",
+			Amount:    741,
+			Action:    "Withdraw",
 		},
 	}
 
-	for _, value := range suite.Transactions {
-		suite.Transaction, err = transaction.Insert(value.UserId, value.AccountId, value.Amount, value.Action)
+	for i, current := range suite.Transactions {
+		suite.Transaction, err = transaction.Insert(current.UserId, current.AccountId, current.Amount, current.Action)
 		if err != nil {
 			suite.T().Fatal("Unable to run InsertTransactionHistory store func")
 		}
-		suite.TransactionsP = append(suite.TransactionsP, suite.Transaction)
+		suite.Transactions[i] = suite.Transaction
 	}
 }
 
 func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 	store := store.NewTransactionHistoryStoreModel(suite.Db)
 	var err error
-	var transact []*entities.TransactionHistory
-	for _, value := range suite.TransactionID {
-		transact, err = store.GetTransactionsById(value)
-		if err != nil {
-			suite.T().Fatal("Unable to run GetTransactionsById store func")
-		}
-	}
+	var transaction []entities.TransactionHistory
+	var transactionsUserIDOne []entities.TransactionHistory
+	var transactionsUserIDTwo []entities.TransactionHistory
+	var transactionsUserIDFive []entities.TransactionHistory
+	now := time.Now()
 
-	for _, value := range suite.TransactionsP {
-		for i := range transact {
-			if value.Id == transact[i].Id {
-				suite.Equal(value.UserId, transact[i].UserId)
-				suite.Equal(value.AccountId, transact[i].AccountId)
-				suite.Equal(value.Action, transact[i].Action)
-				suite.Equal(value.Amount, transact[i].Amount)
-			}
+	transaction, err = store.GetTransactionsById(1)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	}
+	for i, current := range suite.Transactions {
+		current.CreatedAt = now
+		if len(transaction) > i {
+			transaction[i].CreatedAt = now
+		}
+
+		if current.UserId == 1 {
+			transactionsUserIDOne = append(transactionsUserIDOne, current)
 		}
 	}
+	suite.Equal(transactionsUserIDOne, transaction, "Users with ID 1 not equal")
+
+	transaction, err = store.GetTransactionsById(2)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	}
+	for i, current := range suite.Transactions {
+		current.CreatedAt = now
+		if len(transaction) > i {
+			transaction[i].CreatedAt = now
+		}
+		if current.UserId == 2 {
+			transactionsUserIDTwo = append(transactionsUserIDTwo, current)
+		}
+	}
+	suite.Equal(transactionsUserIDTwo, transaction, "Users with ID 2 not equal")
+
+	transaction, err = store.GetTransactionsById(5)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	}
+	for i, current := range suite.Transactions {
+		current.CreatedAt = now
+		if len(transaction) > i {
+			transaction[i].CreatedAt = now
+		}
+		if current.UserId == 5 {
+			transactionsUserIDFive = append(transactionsUserIDFive, current)
+		}
+	}
+	var emptyTransaction []entities.TransactionHistory
+	suite.Equal(emptyTransaction, transaction, "GetTransactionById should return empty struct")
 }
 
 func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
 	store := store.NewTransactionHistoryStoreModel(suite.Db)
 	var err error
-	var transact []*entities.TransactionHistory
-	for _, value := range suite.TransactionsP {
+	var transaction []entities.TransactionHistory
+	var transactionsUserIDOne []entities.TransactionHistory
+	var transactionsUserIDTwo []entities.TransactionHistory
+	var transactionsUserIDFive []entities.TransactionHistory
+	var now time.Time
+
+	for _, current := range suite.Transactions {
 		var k int
-		for k = value.CreatedAt.Nanosecond(); k >= 10; k = k / 10 {
+		for k = current.CreatedAt.Nanosecond(); k >= 10; k = k / 10 {
 		}
 		if k >= 5 {
-			value.CreatedAt = value.CreatedAt.Add(time.Second * 1)
+			current.CreatedAt = suite.Transactions[0].CreatedAt.Add(time.Second * 1)
 		}
-		value.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", value.CreatedAt.UTC().Format("2006-01-02 15:04:05"))
-		transact, err = store.GetTransactionsByIdFromToDate(value.UserId, value.CreatedAt.UTC(), value.CreatedAt.UTC())
-		if err != nil {
-			suite.T().Fatal("Unable to run GetTransactionsByIdFromDate store func")
-		}
+		current.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", current.CreatedAt.UTC().Format("2006-01-02 15:04:05"))
+		now = current.CreatedAt
 	}
 
-	for _, value := range suite.TransactionsP {
-		for i := range transact {
-			if value.Id == transact[i].Id {
-				suite.Equal(value.UserId, transact[i].UserId)
-				suite.Equal(value.AccountId, transact[i].AccountId)
-				suite.Equal(value.Action, transact[i].Action)
-				suite.Equal(value.Amount, transact[i].Amount)
-			}
+	transaction, err = store.GetTransactionsByIdFromToDate(1, now.UTC(), now.UTC())
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	}
+	for i, current := range suite.Transactions {
+		current.CreatedAt = now
+		if len(transaction) > i {
+			transaction[i].CreatedAt = now
+		}
+
+		if current.UserId == 1 {
+			transactionsUserIDOne = append(transactionsUserIDOne, current)
 		}
 	}
+	suite.Equal(transactionsUserIDOne, transaction, "Users with ID 1 not equal")
+
+	transaction, err = store.GetTransactionsByIdFromToDate(2, now, now)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	}
+	for i, current := range suite.Transactions {
+		current.CreatedAt = now
+		if len(transaction) > i {
+			transaction[i].CreatedAt = now
+		}
+		if current.UserId == 2 {
+			transactionsUserIDTwo = append(transactionsUserIDTwo, current)
+		}
+	}
+	suite.Equal(transactionsUserIDTwo, transaction, "Users with ID 2 not equal")
+
+	transaction, err = store.GetTransactionsByIdFromToDate(5, now, now)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetTransactionsById store func")
+	}
+	for i, current := range suite.Transactions {
+		current.CreatedAt = now
+		if len(transaction) > i {
+			transaction[i].CreatedAt = now
+		}
+		if current.UserId == 5 {
+			transactionsUserIDFive = append(transactionsUserIDFive, current)
+		}
+	}
+	suite.Equal(transactionsUserIDFive, transaction, "GetTransactionById should return empty struct")
 }
 
 func TestTransactionHistoryTestSuite(t *testing.T) {
@@ -143,8 +205,8 @@ func TestTransactionHistoryTestSuite(t *testing.T) {
 }
 
 func (suite *TransactionHistoryTestSuite) TearDownTest() {
-	for i := 0; i < len(suite.TransactionsP); i++ {
-		_, err := suite.Db.Exec("DELETE FROM TransactionHistory WHERE id=?", suite.TransactionsP[i].Id)
+	for i := 0; i < len(suite.Transactions); i++ {
+		_, err := suite.Db.Exec("DELETE FROM TransactionHistory WHERE id=?", suite.Transactions[i].Id)
 		if err != nil {
 			suite.T().Fatal("Unable to run delete query")
 		}

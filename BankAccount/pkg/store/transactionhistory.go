@@ -3,13 +3,14 @@ package store
 import (
 	"bankacc/pkg/entities"
 	"database/sql"
+	"fmt"
 	"time"
 )
 
 type TransactionHistoryStore interface {
-	Insert(userId int, accountId int, amount float64, action string) (*entities.TransactionHistory, error)
-	GetTransactionsById(id int) ([]*entities.TransactionHistory, error)
-	GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) ([]*entities.TransactionHistory, error)
+	Insert(userId int, accountId int, amount float64, action string) (entities.TransactionHistory, error)
+	GetTransactionsById(id int) ([]entities.TransactionHistory, error)
+	GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) ([]entities.TransactionHistory, error)
 }
 
 type TransactionHistoryModel struct {
@@ -22,16 +23,16 @@ func NewTransactionHistoryStoreModel(db *sql.DB) *TransactionHistoryModel {
 	}
 }
 
-func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount float64, action string) (*entities.TransactionHistory, error) {
+func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount float64, action string) (entities.TransactionHistory, error) {
 	now := time.Now()
 
 	result, err := store.Db.Exec("INSERT INTO TransactionHistory(user_id, account_id, amount, action, created_at) VALUES(?, ?, ?, ?, ?)", userId, accountId, amount, action, now)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
 	}
 	res, err := result.LastInsertId()
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
 	}
 	transaction := entities.TransactionHistory{
 		Id:        int(res),
@@ -41,11 +42,11 @@ func (store *TransactionHistoryModel) Insert(userId int, accountId int, amount f
 		Action:    action,
 		CreatedAt: now,
 	}
-	return &transaction, nil
+	return transaction, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsById(id int) ([]*entities.TransactionHistory, error) {
-	var transactions []*entities.TransactionHistory
+func (store *TransactionHistoryModel) GetTransactionsById(id int) ([]entities.TransactionHistory, error) {
+	var transactions []entities.TransactionHistory
 	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ?", id)
 	if err != nil {
 		return nil, err
@@ -56,13 +57,13 @@ func (store *TransactionHistoryModel) GetTransactionsById(id int) ([]*entities.T
 		if err != nil {
 			return nil, err
 		}
-		transactions = append(transactions, &transaction)
+		transactions = append(transactions, transaction)
 	}
 	return transactions, nil
 }
 
-func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) ([]*entities.TransactionHistory, error) {
-	var transactions []*entities.TransactionHistory
+func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, fromDate time.Time, toDate time.Time) ([]entities.TransactionHistory, error) {
+	var transactions []entities.TransactionHistory
 	result, err := store.Db.Query("SELECT * FROM TransactionHistory WHERE user_id = ? and created_at BETWEEN ? and ?", id, fromDate, toDate)
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (store *TransactionHistoryModel) GetTransactionsByIdFromToDate(id int, from
 		if err != nil {
 			return nil, err
 		}
-		transactions = append(transactions, &transaction)
+		transactions = append(transactions, transaction)
 	}
 	return transactions, nil
 }
