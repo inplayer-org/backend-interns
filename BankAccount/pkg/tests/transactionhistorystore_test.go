@@ -129,8 +129,7 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionById() {
 			transactionsUserIDFive = append(transactionsUserIDFive, current)
 		}
 	}
-	var emptyTransaction []entities.TransactionHistory
-	suite.Equal(emptyTransaction, transaction, "GetTransactionById should return empty struct")
+	suite.Equal(transactionsUserIDFive, transaction, "GetTransactionById should return empty struct")
 }
 
 func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
@@ -153,7 +152,7 @@ func (suite *TransactionHistoryTestSuite) TestGetTransactionByIdFromToDate() {
 		now = current.CreatedAt
 	}
 
-	transaction, err = store.GetTransactionsByIdFromToDate(1, now.UTC(), now.UTC())
+	transaction, err = store.GetTransactionsByIdFromToDate(1, now, now)
 	if err != nil {
 		suite.T().Fatal("Unable to run GetTransactionsById store func")
 	}
