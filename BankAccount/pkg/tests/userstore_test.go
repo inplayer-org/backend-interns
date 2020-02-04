@@ -87,15 +87,14 @@ func (suite *UserTestSuite) TestGetUserById() {
 func (suite *UserTestSuite) TestUpdateUser() {
 	store := store.NewUserStoreModel(suite.Db)
 	var err error
-	var _ entities.User
-	var users []entities.User
+	var user entities.User
 		time.Sleep(2 * time.Second)
 	for _, current := range suite.Users {
-		_, err = store.UpdateUser(current.Id, current.FullName, current.Email, current.PhoneNumber)
+		user, err = store.UpdateUser(current.Id, current.FullName, current.Email, current.PhoneNumber)
 		if err != nil {
 			suite.T().Fatal("Unable to run UpdateUser store func")
 		}
-		users = append(users, current)
+		suite.Equal(current, user)
 	}
 }
 

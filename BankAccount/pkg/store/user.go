@@ -71,6 +71,7 @@ func (store *UserModel) UpdateUser(id int, fullName string, email string, phoneN
 		fmt.Println(err)
 	}
 	user := entities.User{
+		Id: id,
 		FullName:    fullName,
 		Email:       email,
 		PhoneNumber: phoneNumber,
