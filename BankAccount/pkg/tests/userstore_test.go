@@ -28,11 +28,11 @@ func MySQLInit() *sql.DB {
 type TearDownTestSuite interface {
 	TearDownTest()
 }
+
 type UserTestSuite struct {
 	suite.Suite
-	User      *entities.User
-	UserS     []entities.User
-	UserPs    []*entities.User
+	User      entities.User
+	Users     []entities.User
 	Userstore store.UserModel
 	Db        *sql.DB
 }
@@ -41,8 +41,9 @@ func (suite *UserTestSuite) SetupTest() {
 	var err error
 	suite.Db = MySQLInit()
 	user := store.NewUserStoreModel(suite.Db)
-	suite.UserS = []entities.User{
+	suite.Users = []entities.User{
 		{
+
 			FullName:    "Filip Krs",
 			Email:       "krs@",
 			PhoneNumber: "1",
@@ -58,67 +59,55 @@ func (suite *UserTestSuite) SetupTest() {
 			PhoneNumber: "3",
 		},
 	}
-	for _, value := range suite.UserS {
-		suite.User, err = user.InsertUser(value.FullName, value.Email, value.PhoneNumber)
+	for i, current := range suite.Users {
+		suite.User, err = user.InsertUser(current.FullName, current.Email, current.PhoneNumber)
 		if err != nil {
 			suite.T().Fatal("Unable to run InsertUser store func")
 		}
-		suite.UserPs = append(suite.UserPs, suite.User)
+		suite.Users[i] = suite.User
+
 	}
 }
+
 func (suite *UserTestSuite) TestGetUserById() {
 	store := store.NewUserStoreModel(suite.Db)
 	var err error
-	var user []*entities.User
-	for _, value := range suite.UserPs {
-		user, err = store.GetUserById(value.Id)
+	var user []entities.User
+	var expectedUser []entities.User
+	for _, current := range suite.Users {
+		user, err = store.GetUserById(current.Id)
 		if err != nil {
 			suite.T().Fatal("Unable to run GetUserById store func")
 		}
-	}
-	for _, value := range suite.UserPs {
-		for i := range user {
-			if value.Id == user[i].Id {
-				suite.Equal(value.Id, user[i].Id)
-				suite.Equal(value.FullName, user[i].FullName)
-				suite.Equal(value.Email, user[i].Email)
-				suite.Equal(value.PhoneNumber, user[i].PhoneNumber)
-			}
-		}
+		expectedUser = append(user, current)
+		suite.Equal(expectedUser, user, "Checking Users" )
 	}
 }
+
 func (suite *UserTestSuite) TestUpdateUser() {
 	store := store.NewUserStoreModel(suite.Db)
 	var err error
-	var user *entities.User
-	var users []*entities.User
-	time.Sleep(2 * time.Second)
-	for _, value := range suite.UserPs {
-		user, err = store.UpdateUser(value.Id, value.FullName, value.Email, value.PhoneNumber)
+	var _ entities.User
+	var users []entities.User
+		time.Sleep(2 * time.Second)
+	for _, current := range suite.Users {
+		_, err = store.UpdateUser(current.Id, current.FullName, current.Email, current.PhoneNumber)
 		if err != nil {
 			suite.T().Fatal("Unable to run UpdateUser store func")
 		}
-		users = append(users, user)
-	}
-	for _, value := range suite.UserPs {
-		for i := range users {
-			if value.Id == users[i].Id {
-				suite.Equal(value.Id, users[i].Id)
-				suite.Equal(value.FullName, users[i].FullName)
-				suite.Equal(value.Email, users[i].Email)
-				suite.Equal(value.PhoneNumber, users[i].PhoneNumber)
-			}
-		}
+		users = append(users, current)
 	}
 }
+
 func TestUserTestSuite(t *testing.T) {
 	suite.Run(t, new(UserTestSuite))
 }
+
 func (suite *UserTestSuite) TearDownTest() {
 	store := store.NewUserStoreModel(suite.Db)
 	var err error
-	for _, value := range suite.UserPs {
-		_, err = store.DeleteUser(value.Id)
+	for _, current := range suite.Users {
+		_, err = store.DeleteUser(current.Id)
 		if err != nil {
 			suite.T().Fatal("Unable to run DeleteUser store func")
 		}
