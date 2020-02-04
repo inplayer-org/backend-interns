@@ -4,11 +4,25 @@ import (
 	"bankacc/pkg/entities"
 	"bankacc/pkg/store"
 	"database/sql"
+	"log"
 	"testing"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/suite"
 )
+
+func MySQLInit() *sql.DB {
+	dbDriver := "mysql"
+	dbUser := "root"
+	dbPass := "Password1!"
+	dbName := "BankAccount?parseTime=true"
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		log.Println(err)
+	}
+	return db
+}
 
 type TearDownTestSuite interface {
 	TearDownTest()
@@ -16,9 +30,8 @@ type TearDownTestSuite interface {
 
 type AccountTestSuite struct {
 	suite.Suite
-	Account      *entities.Account
+	Account      entities.Account
 	Accounts     []entities.Account
-	AccountsP    []*entities.Account
 	AccountStore store.AccountModel
 	Db           *sql.DB
 }
@@ -29,7 +42,7 @@ func (suite *AccountTestSuite) SetupTest() {
 	account := store.NewAccountStoreModel(suite.Db)
 	suite.Accounts = []entities.Account{
 		{
-			UserId:   2,
+			UserId:   3,
 			Balance:  550,
 			Currency: "Euros",
 		},
@@ -50,80 +63,113 @@ func (suite *AccountTestSuite) SetupTest() {
 		},
 	}
 
-	for _, value := range suite.Accounts {
-		suite.Account, err = account.InsertAccount(value.UserId, value.Balance, value.Currency)
+	for i, current := range suite.Accounts {
+		suite.Account, err = account.InsertAccount(current.UserId, current.Balance, current.Currency)
 		if err != nil {
 			suite.T().Fatal("Unable to run InsertAccount store func")
 		}
-		suite.AccountsP = append(suite.AccountsP, suite.Account)
+		suite.Accounts[i] = suite.Account
 	}
 }
 
 func (suite *AccountTestSuite) TestGetAccountsById() {
 	store := store.NewAccountStoreModel(suite.Db)
 	var err error
-	var accounts []*entities.Account
-	for _, value := range suite.AccountsP {
-		accounts, err = store.GetAccountsByUserId(value.UserId)
-		if err != nil {
-			suite.T().Fatal("Unable to run GetAccountsById store func")
+	var account []entities.Account
+	var accountsUserIDOne []entities.Account
+	var accountsUserIDThree []entities.Account
+	var accountsUserIDFive []entities.Account
+	now := time.Now()
+
+	account, err = store.GetAccountsByUserId(1)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetAccountsByUserId")
+	}
+	for i, current := range suite.Accounts {
+		current.CreatedAt = now
+		current.UpdatedAt = now
+		if len(account) > i {
+			account[i].CreatedAt = now
+			account[i].UpdatedAt = now
+		}
+		if current.UserId == 1 {
+			accountsUserIDOne = append(accountsUserIDOne, current)
 		}
 	}
-	for _, value := range suite.AccountsP {
-		for i := range accounts {
-			if value.Id == accounts[i].Id {
-				suite.Equal(value.UserId, accounts[i].UserId)
-				suite.Equal(value.Balance, accounts[i].Balance)
-				suite.Equal(value.Currency, accounts[i].Currency)
-				suite.Equal(value.Status, accounts[i].Status)
-			}
+	suite.Equal(accountsUserIDOne, account)
+
+	account, err = store.GetAccountsByUserId(3)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetAccountsByUserId")
+	}
+	for i, current := range suite.Accounts {
+		current.CreatedAt = now
+		current.UpdatedAt = now
+		if len(account) > i {
+			account[i].CreatedAt = now
+			account[i].UpdatedAt = now
+		}
+		if current.UserId == 3 {
+			accountsUserIDThree = append(accountsUserIDThree, current)
 		}
 	}
+	suite.Equal(accountsUserIDThree, account)
+
+	account, err = store.GetAccountsByUserId(5)
+	if err != nil {
+		suite.T().Fatal("Unable to run GetAccountsByUserId")
+	}
+	for i, current := range suite.Accounts {
+		current.CreatedAt = now
+		current.UpdatedAt = now
+		if len(account) > i {
+			account[i].CreatedAt = now
+			account[i].UpdatedAt = now
+		}
+		if current.UserId == 5 {
+			accountsUserIDFive = append(accountsUserIDFive, current)
+		}
+	}
+	suite.Equal(accountsUserIDFive, account)
 }
 
 func (suite *AccountTestSuite) TestUpdateAccount() {
+	now := time.Now()
 	store := store.NewAccountStoreModel(suite.Db)
 	var err error
-	var account *entities.Account
-	var accounts []*entities.Account
-	//time.Sleep(2 * time.Second)
-	for _, value := range suite.AccountsP {
-		account, err = store.UpdateAccount(value.Id, value.UserId, value.Balance, value.Currency)
+	var account entities.Account
+	time.Sleep(2 * time.Second)
+	for _, current := range suite.Accounts {
+		account, err = store.UpdateAccount(current.Id, current.UserId, current.Balance, current.Currency)
 		if err != nil {
 			suite.T().Fatal("Unable to run UpdateAccount store func")
 		}
-		accounts = append(accounts, account)
-	}
-	for _, value := range suite.AccountsP {
-		for i := range accounts {
-			if value.Id == accounts[i].Id {
-				suite.Equal(value.UserId, accounts[i].UserId)
-				suite.Equal(value.Balance, accounts[i].Balance)
-				suite.Equal(value.Currency, accounts[i].Currency)
-			}
-		}
+		current.CreatedAt = now
+		current.UpdatedAt = now
+		account.CreatedAt = now
+		account.UpdatedAt = now
+		suite.Equal(current, account)
 	}
 }
 
 func (suite *AccountTestSuite) TestCloseAccount() {
+	now := time.Now()
 	store := store.NewAccountStoreModel(suite.Db)
 	var err error
-	var account *entities.Account
-	var accounts []*entities.Account
-	for _, value := range suite.AccountsP {
-		account, err = store.CloseAccount(value.Id, value.UserId)
+	var account entities.Account
+	for _, current := range suite.Accounts {
+		account, err = store.CloseAccount(current.Id, current.UserId)
 		if err != nil {
 			suite.T().Fatal("Unable to run CloseAccount store func")
 		}
-		accounts = append(accounts, account)
-	}
-	for _, value := range suite.AccountsP {
-		for i := range accounts {
-			if value.Id == accounts[i].Id {
-				suite.Equal(value.UserId, accounts[i].UserId)
-				suite.Equal(false, accounts[i].Status)
-			}
-		}
+		current.Status = false
+		current.Currency = ""
+		current.Balance = 0
+		current.CreatedAt = now
+		current.UpdatedAt = now
+		account.CreatedAt = now
+		account.UpdatedAt = now
+		suite.Equal(current, account)
 	}
 }
 
@@ -132,8 +178,8 @@ func TestAccountTestSuite(t *testing.T) {
 }
 
 func (suite *AccountTestSuite) TearDownTest() {
-	for i := 0; i < len(suite.AccountsP); i++ {
-		_, err := suite.Db.Exec("DELETE FROM Account WHERE id=?", suite.AccountsP[i].Id)
+	for _, current := range suite.Accounts {
+		_, err := suite.Db.Exec("DELETE FROM Account WHERE id=?", current.Id)
 		if err != nil {
 			suite.T().Fatal("Unable to run delete query")
 		}
